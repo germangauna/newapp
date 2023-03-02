@@ -1,144 +1,176 @@
-import { Button, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
-
-import { StatusBar } from 'expo-status-bar';
+import {
+  Button,
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 
 export default function App() {
-
-  const [itemText, setItemText] = useState('');
+  const [itemText, setItemText] = useState("");
   const [items, setItems] = useState([]);
-  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
   const onChangeText = (text) => {
     setItemText(text);
   };
 
-  const addItem = () => {
-    setItems(oldArry => [...oldArry, {id: Date.now(), value: itemText }]);
-    setItemText('');
+  const addItemToState = () => {
+    setItems((oldArry) => [...oldArry, { id: Date.now(), value: itemText }]);
+    setItemText("");
   };
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const openModal = (item) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
 
-  const removeItem = (id) => {
+  const onCancelModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+  const onDeleteModal = (id) => {
     setModalVisible(!modalVisible);
     setItems((oldArry) => oldArry.filter((item) => item.id !== id));
     setSelectedItem(null);
   };
 
-  const selectItem = (item) => {
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
-
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-              <TextInput
-              placeholder="Item de Lista"
-              style={styles.Input}
-              onChangeText={onChangeText}/>
-              <Button
-              title="Agregar"
-              onPress={addItem}  />
+      <View style={styles.addItemInputContainer}>
+        <TextInput
+          placeholder="Item de lista"
+          style={styles.input}
+          onChangeText={onChangeText}
+          value={itemText}
+        />
+        <Button title="Agregar" onPress={addItemToState} />
       </View>
-      <View style={styles.itemsContainer}>
-        <FlatList
-              data={items}
-              renderItem={(itemData) => (
-              <Pressable stile={styles.contentList} onPress={() => {
-              selectItem(itemData.item)
-              }}>
-              <Text stile={styles.item}>{itemData.item.value}</Text>
-            </Pressable>)} keyExtractor = {(item)  => item.id.toString()} >
-        </FlatList>
-        <Modal
-              animacionType='slider'//mirar animaciones en la doc variedades
-              transparent={true}
-              visible={modalVisible}>
-           <View style={styles.modalContainer}>    
-          <View tyle={styles.modaltitle}>
-            <Text style={{
-              textAlign: 'center',
-              fontSize: 20,
-              fontWeight: 'bold',
-            }}>eliminar Item</Text>
-          </View>
-          <View style={styles.modalContent}>
-              <View >
-              <Text>esta seguro de que quiere eliminar el items {selectItem?.    value}?</Text>
-              {/* //el signo . value  es por las dudas que tengas un error */}
-              </View>
-              <View tyle={styles.modalAction}>
-              <Button title='CANCELAR' onPress={() => { 
-              setModalVisible(false)
-              setSelectItem(null);
-              }}></Button>
-              <Button title='ELIMINAR' onPress={() => { 
-              removeItem(selectItem.id)
-                }}></Button>
-                </View> 
+      <FlatList
+        data={items}
+        renderItem={(itemData) => (
+          <Pressable
+            style={styles.itemContainer}
+            onPress={() => {
+              openModal(itemData.item);
+            }}
+          >
+            <Text style={styles.item}>{itemData.item.value}</Text>
+          </Pressable>
+        )}
+        keyExtractor={(item) => item.id.toString()}
+      />
+
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
+        <View style={styles.modalMainView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Eliminar Item</Text>
+            <Text style={styles.modalText}>
+              ¿Está seguro que desea eliminar el item{" "}
+              <Text style={styles.modalBoldText}>{selectedItem?.value}</Text>?
+            </Text>
+            <View style={styles.modalActions}>
+              <Pressable
+                style={[styles.button, styles.buttonCancel]}
+                onPress={onCancelModal}
+              >
+                <Text style={styles.textStyle}>Cancelar</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, styles.buttonDelete]}
+                onPress={() => {
+                  onDeleteModal(selectedItem.id);
+                }}
+              >
+                <Text style={styles.textStyle}>Eliminar</Text>
+              </Pressable>
             </View>
           </View>
-        </Modal>
-      </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen:{
-      padding:30,
+  screen: {
+    padding: 30,
+    flex: 1,
   },
-  inputContainer:{
-        marginTop: 30,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems:"center",
-        
+  addItemInputContainer: {
+    marginTop: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
- Input:{
-          width: 200,
-          height:30,
-          borderBottomColor:"black",
-          borderBottomWidth: 1,
+  input: {
+    width: 200,
+    borderBottomColor: "black",
+    borderBottomWidth: 1,
   },
-  itemsContainer: {
-   marginTop:30,
+  itemContainer: {
+    margin: 10,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#ccc",
   },
   item: {
     padding: 10,
-    textAlign: 'center',
-    color: 'green',
-    fontFamily: '',
+    textAlign: "center",
   },
-  contentList: {
+  modalMainView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
     padding: 10,
     borderRadius: 5,
-    backgroundColor: '#ccc',
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
   },
-  modalContainer: {
-    height: 250,
-    width: 250,
-    marginTop: 100,
-    alignSelf: 'center',
-    backgroundColor:'red',
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
   },
-  modaltitle: {
-    backgroundColor: '#ccc',
+  modalBoldText: {
+    fontWeight: "bold",
+    textDecorationLine: "underline",
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  button: {
+    borderRadius: 20,
     padding: 10,
-    borderRadius: 5,
+    marginHorizontal: 10,
   },
-  modalContent: {
-    padding: 10,
-    width: '50%',
+  buttonCancel: {
+    backgroundColor: "#2196F3",
   },
-  modalAction: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  buttonDelete: {
+    backgroundColor: "#f44336",
   },
-  modalAction: {
-   textAlign:'center',
-  },
-  
 });
