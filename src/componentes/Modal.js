@@ -14,7 +14,7 @@ const Modal = ({
           <View style={styles.modalView}>
             <Text style={styles.modalTitle}>Eliminar Item</Text>
             <Text style={styles.modalText}>
-              guido y carlina {" "}
+              ¿Está seguro que desea eliminar el item{" "}
               <Text style={styles.modalBoldText}>{selectedItem?.value}</Text>?
             </Text>
             <View style={styles.modalActions}>
@@ -69,8 +69,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
-      textAlign: "center",
-    fontFamily: "blond",
+    textAlign: "center",
   },
   modalBoldText: {
     fontWeight: "bold",
